@@ -1,0 +1,8 @@
+createNode -n "originShape" "locator";
+createNode -n "targetVectorShape" "locator";
+createNode -n "outputShape" "locator";
+createNode -n "activator" "activatorNode";
+connectAttr "origin.t" "activator.ino" ;
+connectAttr "targetVector.t" "activator.inv" ;
+connectAttr "activator.outv" "output.t";
+addAttr -ln "vector" -at "float" -k true "targetVector";

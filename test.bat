@@ -1,0 +1,2 @@
+"D:\Installed Programs\Autodesk\Maya2020\bin\maya.exe" -log %~dp0\test.log -command "loadPlugin \"D:/Work/Pipeline/Maya/Plugins/activatorNode/build/install/plug-ins/activatorNode.mll\";" -script %~dp0\test.mel
+pause
