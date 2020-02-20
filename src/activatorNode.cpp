@@ -185,7 +185,7 @@ MStatus activatorNode::compute(const MPlug& plug, MDataBlock& dataBlock)
 	{
 		// initialize stored variables
 		double outputBaryUnit;
-		double percent;
+		// double percent;
 		double array[3] = {};
 		int i;
 		double sum = 0;
@@ -213,8 +213,11 @@ MStatus activatorNode::compute(const MPlug& plug, MDataBlock& dataBlock)
 
 		// calculate the barycentric delta: (start * percent) + (end * (1-percent))
 		if (maxDistance > 0) {
-			percent = (distance / maxDistance) * 100.0;
-			outputBaryUnit = (0.0 * percent) + (maxDistance * (1.0 - percent));
+			if (distance >= maxDistance) {
+				distance = maxDistance;
+			}
+			outputBaryUnit = 1 - (distance / maxDistance);
+			// outputBaryUnit = 0.0 + (maxDistance * (1.0 - percent));
 		}
 
 

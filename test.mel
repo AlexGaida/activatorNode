@@ -5,5 +5,10 @@ createNode -n "activator" "activatorNode";
 connectAttr "origin.t" "activator.ino" ;
 connectAttr "targetVector.t" "activator.inv" ;
 connectAttr "activator.outv" "output.t";
+
 addAttr -ln "distance" -at "float" -k true "targetVector";
+addAttr -ln "barycentric" -at "float" -k true "targetVector";
+addAttr -ln "maximumDistance" -at "float" -k true "targetVector";
 connectAttr "activator.outputDistance" "targetVector.distance";
+connectAttr "activator.outputBarycentric" "targetVector.barycentric";
+connectAttr "targetVector.maximumDistance" "activator.maximumDistance";

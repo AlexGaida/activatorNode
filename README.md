@@ -7,12 +7,10 @@
 This C++ node is useful in rigging for Maya to determine how close the controller object is to the specified targetVector.
 
 ## Math
+// create a new vector between the origin and target
 
-_MVector_ outputResultVector = inVector - inOriginVector;
+_MVector_ outputResultVector = inOriginVector - inVector;
 
-outputResultVector += inOriginVector;
-
-outputResultVector.normalize();
 
 // compute distance between the origin and target vector
 
