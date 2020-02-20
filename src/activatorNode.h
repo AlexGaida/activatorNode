@@ -32,6 +32,8 @@ public:
 	static MTypeId typeId;
 	// define the distance float value
 	static MObject outputDistance;
+	static MObject outputBarycentric;
+	static MObject maximumDistance;
 
 	// define translates values
 	static MObject inputVectorX;

@@ -10,8 +10,6 @@
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnUnitAttribute.h>
-#include <maya/MEulerRotation.h>
-#include <maya/MFnMatrixAttribute.h>
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnDependencyNode.h>
@@ -40,6 +38,8 @@ MObject activatorNode::outputX;
 MObject activatorNode::outputY;
 MObject activatorNode::outputZ;
 MObject activatorNode::outputDistance;
+MObject activatorNode::outputBarycentric;
+MObject activatorNode::maximumDistance;
 
 // class constructor
 // useful when you want add variables and initialize them
@@ -60,7 +60,6 @@ MStatus activatorNode::initialize()
 	MFnNumericAttribute numFn;
 	MFnTypedAttribute typedFn;
 	MFnCompoundAttribute compound;
- 	MFnUnitAttribute uAttr;
 
 	// define input translates
 	inputVectorX = numFn.create("inputVectorX", "ivx", MFnNumericData::kDouble, 0.0);
@@ -146,17 +145,35 @@ MStatus activatorNode::initialize()
 	compound.setWritable(false);
 	addAttribute(output);
 
+	// define the maximum distance
+	maximumDistance = numFn.create("maximumDistance", "maxd", MFnNumericData::kDouble, 0.0);
+	numFn.setStorable(true);
+	numFn.setKeyable(true);
+	numFn.setWritable(true);
+	addAttribute(maximumDistance);
+
  	// define the output distance
  	outputDistance = numFn.create("outputDistance", "od", MFnNumericData::kDouble, 0.0);
-	uAttr.setStorable(false);
-	uAttr.setKeyable(false);
-	uAttr.setWritable(false);
+	numFn.setStorable(false);
+	numFn.setKeyable(false);
+	numFn.setWritable(false);
 	addAttribute(outputDistance);
+
+ 	// define the output distance
+ 	outputBarycentric = numFn.create("outputBarycentric", "ob", MFnNumericData::kDouble, 0.0);
+	numFn.setStorable(false);
+	numFn.setKeyable(false);
+	numFn.setWritable(false);
+	addAttribute(outputBarycentric);
 
 	// make attribute connections
 	attributeAffects(inputOrigin, output);
 	attributeAffects(inputVector, output);
 	attributeAffects(inputVector, outputDistance);
+	attributeAffects(inputOrigin, outputDistance);
+	attributeAffects(maximumDistance, outputBarycentric);
+	attributeAffects(inputVector, outputBarycentric);
+	attributeAffects(inputOrigin, outputBarycentric);
 	return MS::kSuccess;
 }
 
@@ -164,34 +181,47 @@ MStatus activatorNode::initialize()
 MStatus activatorNode::compute(const MPlug& plug, MDataBlock& dataBlock)
 {
 	// get data
-	if ((plug == output) || (plug == outputX) || (plug == outputY) || (plug == outputZ) || (plug == outputDistance))
+	if ((plug == output) || (plug == outputX) || (plug == outputY) || (plug == outputZ) || (plug == outputDistance) || (plug == outputBarycentric))
 	{
+		// initialize stored variables
+		double outputBaryUnit;
+		double percent;
+		double array[3] = {};
+		int i;
+		double sum = 0;
+
 		// extract input data
 		MVector inOriginVector = dataBlock.inputValue(inputOrigin).asVector();
 		MVector inVector = dataBlock.inputValue(inputVector).asVector();
+		double maxDistance = dataBlock.inputValue(maximumDistance).asDouble();
 
 		// compute needed vectors and normalize
-		MVector outputResultVector = inVector - inOriginVector;
-		outputResultVector += inOriginVector;
-		// outputResultVector.normalize();
-		// compute distance between the origin and target vector
-		double distance;
-		double array[3] = {};
+		MVector outputResultVector = inOriginVector - inVector;
+
+		// compute distance between the origin and target vector using trigonometry
 		array[0] = pow(outputResultVector.x, 2);
 		array[1] = pow(outputResultVector.y, 2);
 		array[2] = pow(outputResultVector.z, 2);
 
 		// calculate the sum
-		int i;
-		double sum = 0;
-		for(i=0; i<3; i++){
+		for(i = 0; i < 3; i++){
 			sum += array[i];
 		}
-		distance = pow(sum, 0.5);
+
+		// square root the sum
+		double distance = pow(sum, 0.5);
+
+		// calculate the barycentric delta: (start * percent) + (end * (1-percent))
+		if (maxDistance > 0) {
+			percent = (distance / maxDistance) * 100.0;
+			outputBaryUnit = (0.0 * percent) + (maxDistance * (1.0 - percent));
+		}
+
 
 		// set output values
 		dataBlock.outputValue(output).set(outputResultVector.x, outputResultVector.y, outputResultVector.z);
 		dataBlock.outputValue(outputDistance).set(distance);
+		dataBlock.outputValue(outputBarycentric).set(outputBaryUnit);
 
 		dataBlock.outputValue(output).setClean();
 		dataBlock.outputValue(outputDistance).setClean();

@@ -7,3 +7,4 @@ build/install/*
 !build/install/plug-ins/
 build/install/plug-ins/*
 !build/install/plug-ins/activatorNode.mll
+test.log

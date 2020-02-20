@@ -5,4 +5,5 @@ createNode -n "activator" "activatorNode";
 connectAttr "origin.t" "activator.ino" ;
 connectAttr "targetVector.t" "activator.inv" ;
 connectAttr "activator.outv" "output.t";
-addAttr -ln "vector" -at "float" -k true "targetVector";
+addAttr -ln "distance" -at "float" -k true "targetVector";
+connectAttr "activator.outputDistance" "targetVector.distance";
