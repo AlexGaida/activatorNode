@@ -1,5 +1,5 @@
 # activatorNode
- a vector distance node with built-in min/ max range to target vector distance.
+ a vector distance node with a max distance range attribute for the target vector.
 
 ---
 
@@ -27,3 +27,7 @@ pow(outputResultVector.z, 2);
 _double_ distance = pow(sum(array), 0.5);
 
 _double_ outputUnit = 1 - (distance / maxDistance);
+
+## Demo
+
+![Node Demo](./activator.gif)
