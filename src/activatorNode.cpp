@@ -22,7 +22,7 @@
 
 using namespace std;
 
-MTypeId activatorNode::typeId(0x80001);
+MTypeId activatorNode::typeId(0x00134e01);
 
 // declare objects
 MObject activatorNode::inputVector;
@@ -167,13 +167,10 @@ MStatus activatorNode::initialize()
 	addAttribute(outputBarycentric);
 
 	// make attribute connections
-	attributeAffects(inputOrigin, output);
-	attributeAffects(inputVector, output);
-	attributeAffects(inputVector, outputDistance);
-	attributeAffects(inputOrigin, outputDistance);
-	attributeAffects(maximumDistance, outputBarycentric);
-	attributeAffects(inputVector, outputBarycentric);
-	attributeAffects(inputOrigin, outputBarycentric);
+	attributeAffects(wheelOriginVector, wheelRotationOutput);
+	attributeAffects(wheelVector, wheelRotationOutput);
+	attributeAffects(wheelRadius, wheelRotationOutput);
+	attributeAffects(wheelAxelOrigin, wheelRotationOutput);
 	return MS::kSuccess;
 }
 
@@ -226,8 +223,10 @@ MStatus activatorNode::compute(const MPlug& plug, MDataBlock& dataBlock)
 		dataBlock.outputValue(outputDistance).set(distance);
 		dataBlock.outputValue(outputBarycentric).set(outputBaryUnit);
 
+		// clean the plugs
 		dataBlock.outputValue(output).setClean();
 		dataBlock.outputValue(outputDistance).setClean();
+		dataBlock.outputValue(outputBarycentric).setClean();
 		dataBlock.setClean(plug);
 	};
 
